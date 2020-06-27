@@ -38,15 +38,19 @@ transparent fashion
 startup. In your `app/application.ex` file, add:
 
 
-    children = [
-      JOSEVirtualHSM
-    ]
+```elixir
+children = [
+  JOSEVirtualHSM
+]
+```
 
 or
 
-    children = [
-      {JOSEVirtualHSM, opts...}
-    ]
+```elixir
+children = [
+  {JOSEVirtualHSM, opts...}
+]
+```
 
 where `opts` is a `Keyword` to the list of children.
 
@@ -61,16 +65,18 @@ to load keys
 
 The key specification can also be retrieved from the environment options:
 
-`config/config.exs`
+`config/config.exs`:
 
-    config :jose_virtual_hsm, :keys, [
-      {:auto_gen, {:ec, "P-256"}, %{"use" => "sig"}},
-      {:auto_gen, {:rsa, 2048}, %{"use" => "sig"}},
-      {:auto_gen, {:okp, :Ed25519}, %{"use" => "sig"}},
-      {:auto_gen, {:ec, "P-256"}, %{"use" => "enc"}},
-      {:auto_gen, {:rsa, 2048}, %{"use" => "enc"}},
-      {:auto_gen, {:okp, :X25519}, %{"use" => "enc"}}
-    ]
+```elixir
+config :jose_virtual_hsm, :keys, [
+  {:auto_gen, {:ec, "P-256"}, %{"use" => "sig"}},
+  {:auto_gen, {:rsa, 2048}, %{"use" => "sig"}},
+  {:auto_gen, {:okp, :Ed25519}, %{"use" => "sig"}},
+  {:auto_gen, {:ec, "P-256"}, %{"use" => "enc"}},
+  {:auto_gen, {:rsa, 2048}, %{"use" => "enc"}},
+  {:auto_gen, {:okp, :X25519}, %{"use" => "enc"}}
+]
+```
 
 This key specification is used i nthe following examples.
 
@@ -78,53 +84,55 @@ This key specification is used i nthe following examples.
 
 ### Retrieving public keys
 
-    iex> JOSEVirtualHSM.public_keys()
-    [
-      %{
-        "crv" => "X25519",
-        "kid" => "NqYw6_wlorTvDqae3HaI79i_k_Q61l0jESQNvgT0Ku4",
-        "kty" => "OKP",
-        "use" => "enc",
-        "x" => "lY2nopV03NTsSqCVgfyr_VNjTBkUhGHcHjIHJNrlaKQ"
-      },
-      %{
-        "crv" => "Ed25519",
-        "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
-        "kty" => "OKP",
-        "use" => "sig",
-        "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
-      },
-      %{
-        "e" => "AQAB",
-        "kid" => "5A5Z3JxpYNO4pqbfC4wSFUk2cpkcAxwZsH0yev3zXpk",
-        "kty" => "RSA",
-        "n" => "7Rwb2l4ORycxCPAMK2B_p1FqKqrBpmcjklqazucAiJtNPtY2n-yEziD05-urwutIN2-wfaKIGg51-8KIQN5x_PTXUxje2oK3GOHHWaSWGpd1kJVEe-owSKGQxoga5rQDTk4j3MMA0brbgoJM2v32lKiv5CgV6E-wgCXb8QlrvIpwhnIN9CPEHuxo9Izpw8WqIj4d8Uu7LohxUM0eFfBkdbmgt5xL4Xm5MV6eDRhYq9agRLGNbBIHK2T5Xyq6-YB5URtWCeizA8hongk6nZAzy19wvz88pj4CsBy73UuP0jdT-wlGGvTpGx9AEFLv1p_RXzVgfZMGn2z3Q8Mhf0mxVQ",
-        "use" => "sig"
-      },
-      %{
-        "e" => "AQAB",
-        "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
-        "kty" => "RSA",
-        "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
-        "use" => "enc"
-      },
-      %{
-        "crv" => "P-256",
-        "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
-        "kty" => "EC",
-        "use" => "enc",
-        "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
-        "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
-      },
-      %{
-        "crv" => "P-256",
-        "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
-        "kty" => "EC",
-        "use" => "sig",
-        "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
-        "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
-      }
-    ]
+```elixir
+iex> JOSEVirtualHSM.public_keys()
+[
+  %{
+    "crv" => "X25519",
+    "kid" => "NqYw6_wlorTvDqae3HaI79i_k_Q61l0jESQNvgT0Ku4",
+    "kty" => "OKP",
+    "use" => "enc",
+    "x" => "lY2nopV03NTsSqCVgfyr_VNjTBkUhGHcHjIHJNrlaKQ"
+  },
+  %{
+    "crv" => "Ed25519",
+    "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
+    "kty" => "OKP",
+    "use" => "sig",
+    "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
+  },
+  %{
+    "e" => "AQAB",
+    "kid" => "5A5Z3JxpYNO4pqbfC4wSFUk2cpkcAxwZsH0yev3zXpk",
+    "kty" => "RSA",
+    "n" => "7Rwb2l4ORycxCPAMK2B_p1FqKqrBpmcjklqazucAiJtNPtY2n-yEziD05-urwutIN2-wfaKIGg51-8KIQN5x_PTXUxje2oK3GOHHWaSWGpd1kJVEe-owSKGQxoga5rQDTk4j3MMA0brbgoJM2v32lKiv5CgV6E-wgCXb8QlrvIpwhnIN9CPEHuxo9Izpw8WqIj4d8Uu7LohxUM0eFfBkdbmgt5xL4Xm5MV6eDRhYq9agRLGNbBIHK2T5Xyq6-YB5URtWCeizA8hongk6nZAzy19wvz88pj4CsBy73UuP0jdT-wlGGvTpGx9AEFLv1p_RXzVgfZMGn2z3Q8Mhf0mxVQ",
+    "use" => "sig"
+  },
+  %{
+    "e" => "AQAB",
+    "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
+    "kty" => "RSA",
+    "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
+    "use" => "enc"
+  },
+  %{
+    "crv" => "P-256",
+    "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
+    "kty" => "EC",
+    "use" => "enc",
+    "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
+    "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
+  },
+  %{
+    "crv" => "P-256",
+    "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
+    "kty" => "EC",
+    "use" => "sig",
+    "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
+    "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
+  }
+]
+```
 
 These public keys can obviously be shared with third parties. They can be used:
 - to verify signature of a JWS signed by `JOSEVirtualHSM`
@@ -135,132 +143,139 @@ These public keys can obviously be shared with third parties. They can be used:
 
 ### Signing:
 
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
-    {:ok,
-     {"eyJhbGciOiJSUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.nFP2GBJdsKzgUMR7g55pMmtNckXB9F9C83jhfAW0qOake7AmpZb3eLZhGi3OrTB7CRI2x9MHtA1qQMdOY0u8R_VovYfv5fGLVRJLe8uICGIq1NojO_66lMMoxmtMxIhVcX1FZfWR9Z_Ez4KGVm4eJvTuO33ds115Ik8Vh3aGFBorW74rYqjYZPgEHyjO4RqbzexBodq-z5rGOqAvFgz9C6X_xkMwiI6mNI4XIQ-5jzLPKMP5t94QwJGZ4EEc9QyFbNqmh2OlUaY0NTthP6MAzler7K5oz2S_6mQvt6K4Fmk1C-HIR3nad_s_z-PLvj6tEJnmIiEcFHTxfRcceUQ_QA",
-      %{
-        "e" => "AQAB",
-        "kid" => "5A5Z3JxpYNO4pqbfC4wSFUk2cpkcAxwZsH0yev3zXpk",
-        "kty" => "RSA",
-        "n" => "7Rwb2l4ORycxCPAMK2B_p1FqKqrBpmcjklqazucAiJtNPtY2n-yEziD05-urwutIN2-wfaKIGg51-8KIQN5x_PTXUxje2oK3GOHHWaSWGpd1kJVEe-owSKGQxoga5rQDTk4j3MMA0brbgoJM2v32lKiv5CgV6E-wgCXb8QlrvIpwhnIN9CPEHuxo9Izpw8WqIj4d8Uu7LohxUM0eFfBkdbmgt5xL4Xm5MV6eDRhYq9agRLGNbBIHK2T5Xyq6-YB5URtWCeizA8hongk6nZAzy19wvz88pj4CsBy73UuP0jdT-wlGGvTpGx9AEFLv1p_RXzVgfZMGn2z3Q8Mhf0mxVQ",
-        "use" => "sig"
-      }}}
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
-    {:ok,
-     {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
-      %{
-        "crv" => "Ed25519",
-        "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
-        "kty" => "OKP",
-        "use" => "sig",
-        "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
-      }}}
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
-    {:ok,
-     {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
-      %{
-        "crv" => "Ed25519",
-        "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
-        "kty" => "OKP",
-        "use" => "sig",
-        "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
-      }}}
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
-    {:ok,
-     {"eyJhbGciOiJFUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.1viHUsVOseF1eJ0nZAOXbo0RfHGP5H1U8lfV9qLijf4EnDbaPI7NkRdFQIHvbYVTYakm0dHdF2YPlNfKOrGMbg",
-      %{
-        "crv" => "P-256",
-        "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
-        "kty" => "EC",
-        "use" => "sig",
-        "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
-        "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
-      }}}
+```elixir
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
+{:ok,
+ {"eyJhbGciOiJSUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.nFP2GBJdsKzgUMR7g55pMmtNckXB9F9C83jhfAW0qOake7AmpZb3eLZhGi3OrTB7CRI2x9MHtA1qQMdOY0u8R_VovYfv5fGLVRJLe8uICGIq1NojO_66lMMoxmtMxIhVcX1FZfWR9Z_Ez4KGVm4eJvTuO33ds115Ik8Vh3aGFBorW74rYqjYZPgEHyjO4RqbzexBodq-z5rGOqAvFgz9C6X_xkMwiI6mNI4XIQ-5jzLPKMP5t94QwJGZ4EEc9QyFbNqmh2OlUaY0NTthP6MAzler7K5oz2S_6mQvt6K4Fmk1C-HIR3nad_s_z-PLvj6tEJnmIiEcFHTxfRcceUQ_QA",
+  %{
+    "e" => "AQAB",
+    "kid" => "5A5Z3JxpYNO4pqbfC4wSFUk2cpkcAxwZsH0yev3zXpk",
+    "kty" => "RSA",
+    "n" => "7Rwb2l4ORycxCPAMK2B_p1FqKqrBpmcjklqazucAiJtNPtY2n-yEziD05-urwutIN2-wfaKIGg51-8KIQN5x_PTXUxje2oK3GOHHWaSWGpd1kJVEe-owSKGQxoga5rQDTk4j3MMA0brbgoJM2v32lKiv5CgV6E-wgCXb8QlrvIpwhnIN9CPEHuxo9Izpw8WqIj4d8Uu7LohxUM0eFfBkdbmgt5xL4Xm5MV6eDRhYq9agRLGNbBIHK2T5Xyq6-YB5URtWCeizA8hongk6nZAzy19wvz88pj4CsBy73UuP0jdT-wlGGvTpGx9AEFLv1p_RXzVgfZMGn2z3Q8Mhf0mxVQ",
+    "use" => "sig"
+  }}}
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
+{:ok,
+ {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
+  %{
+    "crv" => "Ed25519",
+    "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
+    "kty" => "OKP",
+    "use" => "sig",
+    "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
+  }}}
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
+{:ok,
+ {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
+  %{
+    "crv" => "Ed25519",
+    "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
+    "kty" => "OKP",
+    "use" => "sig",
+    "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
+  }}}
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"})
+{:ok,
+ {"eyJhbGciOiJFUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.1viHUsVOseF1eJ0nZAOXbo0RfHGP5H1U8lfV9qLijf4EnDbaPI7NkRdFQIHvbYVTYakm0dHdF2YPlNfKOrGMbg",
+  %{
+    "crv" => "P-256",
+    "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
+    "kty" => "EC",
+    "use" => "sig",
+    "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
+    "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
+  }}}
+```
 
 Notice how keys where chosen randomly from all the available keys. `JOSEVirtualHSM` always
 prefers keys on local node, when available. It's possible to specify how to sign using
 `t:JOSEUtils.JWK.key_selector/0`:
 
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"}, alg: ["ES256", "ES384", "ES512"])
-    {:ok,
-     {"eyJhbGciOiJFUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.ooZ8pRuhp20K8s7k0xkNGCb47nE8sW_JrjHtsb_w5PEFFGR1F7wysJGfg2tTU7kT0QzQQEeWUg0FJgkqsowbTw",
-      %{
-        "crv" => "P-256",
-        "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
-        "kty" => "EC",
-        "use" => "sig",
-        "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
-        "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
-      }}}
-    iex> JOSEVirtualHSM.sign(%{"hello" => "world"}, kty: "OKP")
-    {:ok,
-     {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
-      %{
-        "crv" => "Ed25519",
-        "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
-        "kty" => "OKP",
-        "use" => "sig",
-        "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
-      }}}
+```elixir
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"}, alg: ["ES256", "ES384", "ES512"])
+{:ok,
+ {"eyJhbGciOiJFUzI1NiJ9.eyJoZWxsbyI6IndvcmxkIn0.ooZ8pRuhp20K8s7k0xkNGCb47nE8sW_JrjHtsb_w5PEFFGR1F7wysJGfg2tTU7kT0QzQQEeWUg0FJgkqsowbTw",
+  %{
+    "crv" => "P-256",
+    "kid" => "SiuAFPXstUhUzhmc__1mybX1ZJcJ6F2llEeb-LaAjIo",
+    "kty" => "EC",
+    "use" => "sig",
+    "x" => "2PXy4aIbWUHzkRksSITO1ws9Y1AI14fBAtsvr1UDwXQ",
+    "y" => "hPtgSkKH6DXzh18Ym_jh9bzcJir5mKp_skj9oKI5ydA"
+  }}}
+iex> JOSEVirtualHSM.sign(%{"hello" => "world"}, kty: "OKP")
+{:ok,
+ {"eyJhbGciOiJFZERTQSJ9.eyJoZWxsbyI6IndvcmxkIn0.WVRgyl4Pen0nieJF7cmGXQnkOocP4B6i78VgkKxcu_-gADSIM5Cg_mL2T-cU1ZY1ib91bQnHALdNoXqVSi66DQ",
+  %{
+    "crv" => "Ed25519",
+    "kid" => "Hq3_i8UWJ1FqokUqTQRDLw4GvvBQCKiMjSoQ4Ng6CY0",
+    "kty" => "OKP",
+    "use" => "sig",
+    "x" => "XxHceRoVym7hsb5W-T2RqTzgoz_DEmCZKHBjy6MWsZA"
+  }}}
+```
 
 ### Decryption
 
 With RSA:
 
-    iex> jwk_pub = JOSEVirtualHSM.public_keys() |> Enum.find(&(&1["kty"] == "RSA" and &1["use"] == "enc"))
-    %{
-      "e" => "AQAB",
-      "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
-      "kty" => "RSA",
-      "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
-      "use" => "enc"
-    }
-    iex> jwe = JOSEUtils.JWE.encrypt!(%{"very" => "secret"}, jwk_pub, "RSA-OAEP", "A128GCM")
-    "eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhHQ00ifQ.0odG-8i5DL-SB1h4_DeGbavEZhACbVKqvnz2MCoSUyCW84U7ejqn2HqLh8Te03_yIlR9jC8raJ4OI75fbsK9bKrSf_RubJIYjVto0GaBIJzREujjS2fVACe5UUPQ9lVkYplXiT-wqm3wvtX9GkaBz4FL-fmftgtdW9zdYC9U2D_AfFG5hhO4BnAUaI7x1wDdnVMCPjbg5B21x6IPGSma0H6YgCyBf26BRIuNNRbaly89CAam3oqzTn3t0UrDb-Hrx8jEC4a9RxmL44RIdFVAjijcWLjorSd8qq8qGrDa7gpcFEGAYrX7U5XDawjyJnWzWD1g-LDn6H0IbAn5LEorEA.rTMjuaYevaacZbzt.6t7IpuvqFe2nt94httLzpjk.Cc5UcgwZBhkuUFsDeKpQBA"
-    iex> JOSEVirtualHSM.decrypt(jwe)
-    {:ok,
-     {"{\\"very\\":\\"secret\\"}",
-      %{
-        "e" => "AQAB",
-        "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
-        "kty" => "RSA",
-        "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
-        "use" => "enc"
-      }}}
+```elixir
+iex> jwk_pub = JOSEVirtualHSM.public_keys() |> Enum.find(&(&1["kty"] == "RSA" and &1["use"] == "enc"))
+%{
+  "e" => "AQAB",
+  "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
+  "kty" => "RSA",
+  "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
+  "use" => "enc"
+}
+iex> jwe = JOSEUtils.JWE.encrypt!(%{"very" => "secret"}, jwk_pub, "RSA-OAEP", "A128GCM")
+"eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhHQ00ifQ.0odG-8i5DL-SB1h4_DeGbavEZhACbVKqvnz2MCoSUyCW84U7ejqn2HqLh8Te03_yIlR9jC8raJ4OI75fbsK9bKrSf_RubJIYjVto0GaBIJzREujjS2fVACe5UUPQ9lVkYplXiT-wqm3wvtX9GkaBz4FL-fmftgtdW9zdYC9U2D_AfFG5hhO4BnAUaI7x1wDdnVMCPjbg5B21x6IPGSma0H6YgCyBf26BRIuNNRbaly89CAam3oqzTn3t0UrDb-Hrx8jEC4a9RxmL44RIdFVAjijcWLjorSd8qq8qGrDa7gpcFEGAYrX7U5XDawjyJnWzWD1g-LDn6H0IbAn5LEorEA.rTMjuaYevaacZbzt.6t7IpuvqFe2nt94httLzpjk.Cc5UcgwZBhkuUFsDeKpQBA"
+iex> JOSEVirtualHSM.decrypt(jwe)
+{:ok,
+ {"{\\"very\\":\\"secret\\"}",
+  %{
+    "e" => "AQAB",
+    "kid" => "szhiyrpeKBtQOr6cSEj3TbJ87vqvvGuk3Is6cPBYNm0",
+    "kty" => "RSA",
+    "n" => "5GX4GERxJ2rV-w5T2G00D3-HLEriXjriL-w7TkCB9H8zhiljHH0SxmbxBMT5HksJMWQyiDZEKp6ilrZCjsvOAJCpvh0SrPnIRzu95Wt1VlGOlp0C2BnL0wuPnkrUHbGZAzE-ux4ISpw9LqTi6KlL1dWQei6-_ihs0E37iTpFJy2EbEVXG6ydsH0FnoJv0_dgf3P4Yy8kIoNx5f4czLSWhK-psoPVKxxAN3mlY7iRGQHxOdgEyrsANj8uSQehzO87T5IVmMDtoBBx6PUn9awDW5emoU_mfXy3hlR3S67pjbjfNA5A3QZBs39-hCU92EtA7CS0IQ_rvvAfvlLV3T-tjQ",
+    "use" => "enc"
+  }}}
+```
 
 With ECDH-ES:
 
-    iex> jwk_pub = JOSEVirtualHSM.public_keys() |> Enum.find(&(&1["kty"] == "EC" and &1["use"] == "enc"))
-    %{
-      "crv" => "P-256",
-      "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
-      "kty" => "EC",
-      "use" => "enc",
-      "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
-      "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
-    }
-    iex> my_jwk_priv = JOSE.JWK.generate_key({:ec, "P-256"}) |> JOSE.JWK.to_map() |> elem(1)
-    %{
-      "crv" => "P-256",
-      "d" => "TsfNgJq_UEWdf0rqp2W5OQJQMbtANMMWwguNO4VrZkM",
-      "kty" => "EC",
-      "x" => "UIZ5br7q2li5NzcZePOiK4Wi3jV4xATVT4Yie8xMRT8",
-      "y" => "eiLF2EUWFbPX2MTchz_h-VbiEjnJ9koB-6kVqWF3kBo"
-    }
-    iex> jwe = JOSEUtils.JWE.encrypt!(%{"very" => "secret"}, {jwk_pub, my_jwk_priv}, "ECDH-ES", "A128GCM")
-    "eyJhbGciOiJFQ0RILUVTIiwiZW5jIjoiQTEyOEdDTSIsImVwayI6eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6IlVJWjVicjdxMmxpNU56Y1plUE9pSzRXaTNqVjR4QVRWVDRZaWU4eE1SVDgiLCJ5IjoiZWlMRjJFVVdGYlBYMk1UY2h6X2gtVmJpRWpuSjlrb0ItNmtWcVdGM2tCbyJ9fQ..16AhXI2qu9cw7A6e.dG_TaBdpAJHgR962LxThdWo.uBtZ3N55sztIRgCFwzC5hw"
-    iex> JOSEVirtualHSM.decrypt(jwe)
-    {:ok,
-     {"{\\"very\\":\\"secret\\"}",
-      %{
-        "crv" => "P-256",
-        "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
-        "kty" => "EC",
-        "use" => "enc",
-        "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
-        "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
-      }}}
-
+```elixir
+iex> jwk_pub = JOSEVirtualHSM.public_keys() |> Enum.find(&(&1["kty"] == "EC" and &1["use"] == "enc"))
+%{
+  "crv" => "P-256",
+  "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
+  "kty" => "EC",
+  "use" => "enc",
+  "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
+  "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
+}
+iex> my_jwk_priv = JOSE.JWK.generate_key({:ec, "P-256"}) |> JOSE.JWK.to_map() |> elem(1)
+%{
+  "crv" => "P-256",
+  "d" => "TsfNgJq_UEWdf0rqp2W5OQJQMbtANMMWwguNO4VrZkM",
+  "kty" => "EC",
+  "x" => "UIZ5br7q2li5NzcZePOiK4Wi3jV4xATVT4Yie8xMRT8",
+  "y" => "eiLF2EUWFbPX2MTchz_h-VbiEjnJ9koB-6kVqWF3kBo"
+}
+iex> jwe = JOSEUtils.JWE.encrypt!(%{"very" => "secret"}, {jwk_pub, my_jwk_priv}, "ECDH-ES", "A128GCM")
+"eyJhbGciOiJFQ0RILUVTIiwiZW5jIjoiQTEyOEdDTSIsImVwayI6eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6IlVJWjVicjdxMmxpNU56Y1plUE9pSzRXaTNqVjR4QVRWVDRZaWU4eE1SVDgiLCJ5IjoiZWlMRjJFVVdGYlBYMk1UY2h6X2gtVmJpRWpuSjlrb0ItNmtWcVdGM2tCbyJ9fQ..16AhXI2qu9cw7A6e.dG_TaBdpAJHgR962LxThdWo.uBtZ3N55sztIRgCFwzC5hw"
+iex> JOSEVirtualHSM.decrypt(jwe)
+{:ok,
+ {"{\\"very\\":\\"secret\\"}",
+  %{
+    "crv" => "P-256",
+    "kid" => "ltu_BZFFssJhqlTdKvf3VWu7z9dFKhwFxXSx8Q-bpw4",
+    "kty" => "EC",
+    "use" => "enc",
+    "x" => "jopq4PgS4w9721MwJppxw7niV-1zqgtBd-JeVWPuBcU",
+    "y" => "Eo1xbm0g5AsB8GSiXKHRynXH2OwRcMO9i-6PTi-k-GE"
+  }}}
+```
 
 ## Clustering
 
