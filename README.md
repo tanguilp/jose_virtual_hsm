@@ -7,7 +7,7 @@ Virtual JOSE HSM for signing JWSes and decrypting JWEs
 ```elixir
 def deps do
   [
-    {:jose_virtual_hsm, "~> 0.1.0"}
+    {:jose_virtual_hsm, "~> 0.2.0"}
   ]
 end
 ```

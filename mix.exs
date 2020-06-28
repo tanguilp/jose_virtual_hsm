@@ -5,7 +5,7 @@ defmodule JOSEVirtualHSM.MixProject do
     [
       app: :jose_virtual_hsm,
       description: "Virtual JOSE HSM for signing JWSes and decrypting JWEs",
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       docs: [

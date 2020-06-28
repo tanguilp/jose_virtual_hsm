@@ -308,6 +308,22 @@ defmodule JOSEVirtualHSMTest do
     end
   end
 
+  describe ".encrypt_ecdh/5" do
+    setup :start
+
+    test "encrypt a payload, with ECDH-ES and curve secp256r1" do
+      jwk_pub = JOSE.JWK.generate_key({:ec, "P-256"}) |> JOSE.JWK.to_public_map() |> elem(1)
+
+      assert {:ok, _} = JOSEVirtualHSM.encrypt_ecdh("test", jwk_pub, "ECDH-ES", "A128GCM")
+    end
+
+    test "encrypt a payload, with ECDH-ES and curve X25519" do
+      jwk_pub = JOSE.JWK.generate_key({:okp, :X25519}) |> JOSE.JWK.to_public_map() |> elem(1)
+
+      assert {:ok, _} = JOSEVirtualHSM.encrypt_ecdh("test", jwk_pub, "ECDH-ES", "A128GCM")
+    end
+  end
+
   describe ".decrypt/2" do
     setup :start
 

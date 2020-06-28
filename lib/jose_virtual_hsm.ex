@@ -285,6 +285,8 @@ defmodule JOSEVirtualHSM do
   # {kid, jwk_pub, [nodes]}
   @pub_keys_tab Module.concat(__MODULE__, PublicKeys)
 
+  @enc_ecdh_algs ["ECDH-ES", "ECDH-ES+A128KW", "ECDH-ES+A192KW", "ECDH-ES+A256KW"]
+
   use GenServer
 
   alias JOSEVirtualHSM.{
@@ -535,6 +537,67 @@ defmodule JOSEVirtualHSM do
     end
   end
 
+  @doc """
+  Encrypts a payload with an ECDH algorithm
+
+  The JWK parameter is the public JWK of the recipient of the JWE, which is also the returned
+  JWK.
+  """
+  @spec encrypt_ecdh(
+          payload :: any(),
+          jwk :: JOSEUtils.JWK.t(),
+          enc_alg :: JOSEUtils.JWA.enc_alg(),
+          enc_enc :: JOSEUtils.JWA.enc_enc(),
+          timeout :: non_neg_integer()
+        ) :: {:ok, {JOSEUtils.JWE.serialized(), JOSEUtils.JWK.t()}} | {:error, Exception.t()}
+  def encrypt_ecdh(payload, jwk, enc_alg, enc_enc, timeout \\ 30_000)
+
+  def encrypt_ecdh(<<_::binary>> = payload, jwk, enc_alg, enc_enc, timeout)
+      when enc_alg in @enc_ecdh_algs do
+    key_selector = [alg: enc_alg, enc: enc_enc, kty: jwk["kty"], crv: jwk["crv"]]
+
+    all_keys = :ets.tab2list(@pub_keys_tab)
+
+    suitable_kids =
+      all_keys
+      |> Enum.map(fn {_kid, jwk, _nodes} -> jwk end)
+      |> JOSEUtils.JWKS.encryption_keys()
+      |> Enum.filter(&JOSEUtils.JWK.match_key_selector?(&1, key_selector))
+      |> Enum.map(& &1["kid"])
+
+    case suitable_kids do
+      [kid | _] ->
+        {_, _, nodes} =
+          Enum.find(all_keys, fn
+            {^kid, _, _} -> true
+            _ -> false
+          end)
+
+        if node() in nodes do
+          GenServer.call(
+            JOSEVirtualHSM,
+            {:encrypt_ecdh, payload, jwk, kid, enc_alg, enc_enc},
+            timeout
+          )
+        else
+          GenServer.call(
+            {JOSEVirtualHSM, Enum.random(nodes)},
+            {:encrypt_ecdh, payload, jwk, kid, enc_alg, enc_enc},
+            timeout
+          )
+        end
+
+      [] ->
+        {:error, %NoSuitableKeyFoundError{}}
+    end
+  end
+
+  def encrypt_ecdh(payload, jwk, enc_alg, enc_enc, timeout) do
+    with {:ok, payload_str} = Jason.encode(payload) do
+      encrypt_ecdh(payload_str, jwk, enc_alg, enc_enc, timeout)
+    end
+  end
+
   @doc false
   @spec register_public_key(node(), JOSEUtils.JWK.t()) :: any()
   def register_public_key(node, jwk_pub) do
@@ -576,6 +639,22 @@ defmodule JOSEVirtualHSM do
         state = %{state | worker_pids: Map.put(state.worker_pids, pid, from)}
 
         GenServer.cast(pid, {:sign, from, jwk_priv, alg_or_algs_or_nil, payload})
+
+        {:noreply, state}
+
+      {:error, reason} ->
+        {:reply, {:error, %WorkerError{reason: reason}}, state}
+    end
+  end
+
+  def handle_call({:encrypt_ecdh, payload, jwk, kid, enc_alg, enc_enc}, from, state) do
+    case GenServer.start_link(Worker, []) do
+      {:ok, pid} ->
+        [{_kid, jwk_priv}] = :ets.lookup(state.jwk_priv_ets, kid)
+
+        state = %{state | worker_pids: Map.put(state.worker_pids, pid, from)}
+
+        GenServer.cast(pid, {:encrypt_ecdh, from, jwk_priv, jwk, enc_alg, enc_enc, payload})
 
         {:noreply, state}
 

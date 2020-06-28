@@ -43,6 +43,18 @@ defmodule JOSEVirtualHSM.Worker do
     {:stop, :normal, nil}
   end
 
+  def handle_cast({:encrypt_ecdh, calling_process, jwk_priv, jwk, alg, enc, payload}, _) do
+    case JOSEUtils.JWE.encrypt(payload, {jwk, jwk_priv}, alg, enc) do
+      {:ok, jwe} ->
+        GenServer.reply(calling_process, {:ok, {jwe, jwk}})
+
+      {:error, _} = error ->
+        GenServer.reply(calling_process, error)
+    end
+
+    {:stop, :normal, nil}
+  end
+
   def handle_cast({:decrypt, calling_process, jwks_priv, jwe, enc_alg, enc_enc}, _) do
     case JOSEUtils.JWE.decrypt(jwe, jwks_priv, [enc_alg], [enc_enc]) do
       {:ok, _} = result ->
